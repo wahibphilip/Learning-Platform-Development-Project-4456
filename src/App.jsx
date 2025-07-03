@@ -7,6 +7,7 @@ import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Courses from './pages/Courses/Courses';
 import CourseDetail from './pages/Courses/CourseDetail';
+import CourseContentManager from './pages/Courses/CourseContentManager';
 import Students from './pages/Students/Students';
 import Tutors from './pages/Tutors/Tutors';
 import Campaigns from './pages/Campaigns/Campaigns';
@@ -29,6 +30,7 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="courses" element={<Courses />} />
                 <Route path="courses/:id" element={<CourseDetail />} />
+                <Route path="courses/:id/content" element={<CourseContentManager />} />
                 <Route path="students" element={<Students />} />
                 <Route path="tutors" element={<Tutors />} />
                 <Route path="campaigns" element={<Campaigns />} />

@@ -10,7 +10,7 @@ import * as FiIcons from 'react-icons/fi';
 import CourseForm from './CourseForm';
 import toast from 'react-hot-toast';
 
-const { FiPlus, FiEdit, FiTrash2, FiUsers, FiStar, FiClock } = FiIcons;
+const { FiPlus, FiEdit, FiTrash2, FiUsers, FiStar, FiClock, FiSettings, FiBook } = FiIcons;
 
 const Courses = () => {
   const { courses, deleteCourse } = useData();
@@ -33,6 +33,10 @@ const Courses = () => {
   const handleCloseModal = () => {
     setShowAddModal(false);
     setEditingCourse(null);
+  };
+
+  const handleManageContent = (courseId) => {
+    navigate(`/courses/${courseId}/content`);
   };
 
   return (
@@ -60,7 +64,7 @@ const Courses = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="overflow-hidden group cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
+            <Card className="overflow-hidden group">
               <div className="aspect-video bg-gray-200 overflow-hidden">
                 <img
                   src={course.image}
@@ -79,7 +83,6 @@ const Courses = () => {
                   </span>
                   <span className="text-lg font-bold text-primary-600">${course.price}</span>
                 </div>
-                
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
                 
@@ -93,34 +96,45 @@ const Courses = () => {
                     {course.enrolled} students
                   </div>
                 </div>
-                
-                <div className="flex items-center justify-between">
+
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <SafeIcon icon={FiStar} className="w-4 h-4 text-yellow-400 mr-1" />
                     <span className="text-sm font-medium">{course.rating}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(course);
-                      }}
-                    >
-                      <SafeIcon icon={FiEdit} className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(course.id);
-                      }}
-                    >
-                      <SafeIcon icon={FiTrash2} className="w-4 h-4" />
-                    </Button>
-                  </div>
+                </div>
+
+                <div className="flex items-center justify-between space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleManageContent(course.id)}
+                    className="flex-1"
+                  >
+                    <SafeIcon icon={FiBook} className="w-4 h-4 mr-1" />
+                    Content
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/courses/${course.id}`)}
+                  >
+                    <SafeIcon icon={FiSettings} className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(course)}
+                  >
+                    <SafeIcon icon={FiEdit} className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(course.id)}
+                  >
+                    <SafeIcon icon={FiTrash2} className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -150,10 +164,7 @@ const Courses = () => {
         title={editingCourse ? 'Edit Course' : 'Add New Course'}
         size="lg"
       >
-        <CourseForm
-          course={editingCourse}
-          onClose={handleCloseModal}
-        />
+        <CourseForm course={editingCourse} onClose={handleCloseModal} />
       </Modal>
     </div>
   );

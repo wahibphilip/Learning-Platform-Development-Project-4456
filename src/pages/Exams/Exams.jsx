@@ -5,10 +5,10 @@ import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import SafeIcon from '../../components/common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
-import ExamForm from './ExamForm';
+import ExamBuilder from './ExamBuilder';
 import toast from 'react-hot-toast';
 
-const { FiPlus, FiEdit, FiTrash2, FiFileText, FiClock, FiUsers, FiCheckCircle } = FiIcons;
+const { FiPlus, FiEdit, FiTrash2, FiFileText, FiClock, FiUsers, FiCheckCircle, FiEye } = FiIcons;
 
 const Exams = () => {
   const [exams, setExams] = useState([
@@ -17,30 +17,34 @@ const Exams = () => {
       title: 'React Fundamentals Final Exam',
       description: 'Comprehensive exam covering React basics, components, and state management',
       course: 'React Fundamentals',
-      duration: 60,
-      totalQuestions: 30,
+      timeLimit: 60,
+      totalQuestions: 25,
+      totalPoints: 100,
       passingScore: 70,
       attempts: 245,
       averageScore: 78,
       status: 'active',
-      createdAt: '2024-01-15'
+      createdAt: '2024-01-15',
+      questions: []
     },
     {
       id: '2',
       title: 'JavaScript Advanced Concepts',
       description: 'Test your knowledge of advanced JavaScript concepts and ES6+ features',
       course: 'Advanced JavaScript',
-      duration: 90,
-      totalQuestions: 40,
+      timeLimit: 90,
+      totalQuestions: 30,
+      totalPoints: 120,
       passingScore: 75,
       attempts: 189,
       averageScore: 82,
       status: 'active',
-      createdAt: '2024-01-20'
+      createdAt: '2024-01-20',
+      questions: []
     }
   ]);
 
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showBuilder, setShowBuilder] = useState(false);
   const [editingExam, setEditingExam] = useState(null);
 
   const handleDelete = (examId) => {
@@ -52,13 +56,37 @@ const Exams = () => {
 
   const handleEdit = (exam) => {
     setEditingExam(exam);
-    setShowAddModal(true);
+    setShowBuilder(true);
   };
 
-  const handleCloseModal = () => {
-    setShowAddModal(false);
+  const handleSaveExam = (examData) => {
+    if (editingExam) {
+      setExams(prev => prev.map(e => 
+        e.id === editingExam.id ? { ...examData, id: editingExam.id } : e
+      ));
+      toast.success('Exam updated successfully');
+    } else {
+      setExams(prev => [...prev, { ...examData, id: Date.now().toString() }]);
+      toast.success('Exam created successfully');
+    }
+    setShowBuilder(false);
     setEditingExam(null);
   };
+
+  const handleCancelBuilder = () => {
+    setShowBuilder(false);
+    setEditingExam(null);
+  };
+
+  if (showBuilder) {
+    return (
+      <ExamBuilder
+        exam={editingExam}
+        onSave={handleSaveExam}
+        onCancel={handleCancelBuilder}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -71,7 +99,7 @@ const Exams = () => {
           <h1 className="text-3xl font-bold text-gray-900">Exams</h1>
           <p className="text-gray-600 mt-1">Create and manage course assessments</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
+        <Button onClick={() => setShowBuilder(true)}>
           <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
           Create Exam
         </Button>
@@ -110,7 +138,7 @@ const Exams = () => {
                   <SafeIcon icon={FiClock} className="w-4 h-4 text-gray-400" />
                   <div>
                     <p className="text-xs text-gray-500">Duration</p>
-                    <p className="text-sm font-medium">{exam.duration} min</p>
+                    <p className="text-sm font-medium">{exam.timeLimit} min</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -142,7 +170,7 @@ const Exams = () => {
                   <span className="font-medium">{exam.passingScore}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-primary-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${exam.passingScore}%` }}
                   ></div>
@@ -154,6 +182,9 @@ const Exams = () => {
                   Created {new Date(exam.createdAt).toLocaleDateString()}
                 </span>
                 <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm">
+                    <SafeIcon icon={FiEye} className="w-4 h-4" />
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -184,36 +215,12 @@ const Exams = () => {
           <SafeIcon icon={FiFileText} className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No exams yet</h3>
           <p className="text-gray-600 mb-4">Create your first exam to assess student knowledge</p>
-          <Button onClick={() => setShowAddModal(true)}>
+          <Button onClick={() => setShowBuilder(true)}>
             <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
             Create Exam
           </Button>
         </motion.div>
       )}
-
-      <Modal
-        isOpen={showAddModal}
-        onClose={handleCloseModal}
-        title={editingExam ? 'Edit Exam' : 'Create New Exam'}
-        size="lg"
-      >
-        <ExamForm
-          exam={editingExam}
-          onClose={handleCloseModal}
-          onSave={(examData) => {
-            if (editingExam) {
-              setExams(prev => prev.map(e => 
-                e.id === editingExam.id ? { ...e, ...examData } : e
-              ));
-              toast.success('Exam updated successfully');
-            } else {
-              setExams(prev => [...prev, { ...examData, id: Date.now().toString() }]);
-              toast.success('Exam created successfully');
-            }
-            handleCloseModal();
-          }}
-        />
-      </Modal>
     </div>
   );
 };
