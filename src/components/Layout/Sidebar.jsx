@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiHome, FiBook, FiUsers, FiUserCheck, FiTarget, FiMap, FiFileText, FiAward, FiGraduationCap } = FiIcons;
+const { FiHome, FiBook, FiUsers, FiUserCheck, FiTarget, FiMap, FiFileText, FiAward, FiGraduationCap, FiSettings, FiShield } = FiIcons;
 
 const Sidebar = () => {
   const navItems = [
@@ -15,7 +15,9 @@ const Sidebar = () => {
     { path: '/campaigns', icon: FiTarget, label: 'Campaigns' },
     { path: '/paths', icon: FiMap, label: 'Learning Paths' },
     { path: '/exams', icon: FiFileText, label: 'Exams' },
-    { path: '/certificates', icon: FiAward, label: 'Certificates' }
+    { path: '/certificates', icon: FiAward, label: 'Certificates' },
+    { path: '/roles', icon: FiShield, label: 'Role Management' },
+    { path: '/settings', icon: FiSettings, label: 'Settings' }
   ];
 
   return (

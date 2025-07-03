@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useData } from '../../contexts/DataContext';
 import Button from '../../components/common/Button';
+import { generateCertificateId, generateCertificateHash } from '../../utils/certificateAuth';
+import { CERTIFICATE_TYPES } from '../../utils/certificateAutoIssuer';
 
 const CertificateForm = ({ certificate, onClose, onSave }) => {
-  const { courses } = useData();
+  const { courses, students } = useData();
   const [loading, setLoading] = useState(false);
   
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: certificate || {
       studentName: '',
       studentEmail: '',
@@ -19,16 +21,12 @@ const CertificateForm = ({ certificate, onClose, onSave }) => {
       grade: 'A',
       score: 100,
       status: 'issued',
-      isVerified: false
+      isVerified: false,
+      type: CERTIFICATE_TYPES.COURSE_COMPLETION
     }
   });
 
-  const generateCertificateId = () => {
-    const prefix = 'CERT';
-    const year = new Date().getFullYear();
-    const random = Math.random().toString(36).substr(2, 6).toUpperCase();
-    return `${prefix}-${year}-${random}`;
-  };
+  const certificateType = watch('type');
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -36,8 +34,15 @@ const CertificateForm = ({ certificate, onClose, onSave }) => {
       const certificateData = {
         ...data,
         score: parseInt(data.score),
-        certificateId: data.certificateId || generateCertificateId()
+        certificateId: data.certificateId || generateCertificateId(),
+        createdAt: certificate?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isVerified: true
       };
+
+      // Generate integrity hash
+      certificateData.hash = generateCertificateHash(certificateData);
+      
       onSave(certificateData);
     } finally {
       setLoading(false);
@@ -50,13 +55,33 @@ const CertificateForm = ({ certificate, onClose, onSave }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Student Name
+              Certificate Type
             </label>
-            <input
-              {...register('studentName', { required: 'Student name is required' })}
+            <select
+              {...register('type', { required: 'Certificate type is required' })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-              placeholder="Enter student name"
-            />
+            >
+              <option value={CERTIFICATE_TYPES.COURSE_COMPLETION}>Course Completion</option>
+              <option value={CERTIFICATE_TYPES.EXAM}>Exam Completion</option>
+              <option value={CERTIFICATE_TYPES.ATTENDANCE}>Attendance Certificate</option>
+              <option value={CERTIFICATE_TYPES.LEARNING_PATH}>Learning Path Completion</option>
+            </select>
+            {errors.type && <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Student
+            </label>
+            <select
+              {...register('studentName', { required: 'Student is required' })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+            >
+              <option value="">Select a student</option>
+              {students.map(student => (
+                <option key={student.id} value={student.name}>{student.name}</option>
+              ))}
+            </select>
             {errors.studentName && <p className="mt-1 text-sm text-red-600">{errors.studentName.message}</p>}
           </div>
 
@@ -81,13 +106,15 @@ const CertificateForm = ({ certificate, onClose, onSave }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Course Name
+              {certificateType === CERTIFICATE_TYPES.LEARNING_PATH ? 'Learning Path' : 
+               certificateType === CERTIFICATE_TYPES.EXAM ? 'Exam' : 'Course Name'}
             </label>
             <select
-              {...register('courseName', { required: 'Course is required' })}
+              {...register('courseName', { required: 'Course/Path/Exam is required' })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
             >
-              <option value="">Select a course</option>
+              <option value="">Select {certificateType === CERTIFICATE_TYPES.LEARNING_PATH ? 'a learning path' : 
+                                      certificateType === CERTIFICATE_TYPES.EXAM ? 'an exam' : 'a course'}</option>
               {courses.map(course => (
                 <option key={course.id} value={course.title}>{course.title}</option>
               ))}
@@ -149,6 +176,7 @@ const CertificateForm = ({ certificate, onClose, onSave }) => {
               <option value="C-">C-</option>
               <option value="D">D</option>
               <option value="F">F</option>
+              {certificateType === CERTIFICATE_TYPES.ATTENDANCE && <option value="Completed">Completed</option>}
             </select>
           </div>
 
@@ -181,7 +209,7 @@ const CertificateForm = ({ certificate, onClose, onSave }) => {
               placeholder="Auto-generated if empty"
             />
           </div>
-
+          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Status

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useData } from '../../contexts/DataContext';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
@@ -11,28 +12,22 @@ import toast from 'react-hot-toast';
 const { FiPlus, FiEdit, FiTrash2, FiMap, FiBook, FiUsers, FiClock } = FiIcons;
 
 const Paths = () => {
+  const { courses } = useData();
   const [paths, setPaths] = useState([
     {
       id: '1',
       name: 'Frontend Development Path',
       description: 'Complete frontend development journey from beginner to advanced',
-      courses: ['HTML/CSS Basics', 'JavaScript Fundamentals', 'React Development', 'Advanced React'],
-      duration: '6 months',
+      courses: [
+        { id: '1', title: 'React Fundamentals', duration: '4 weeks', level: 'Beginner', order: 0 },
+        { id: '2', title: 'Advanced JavaScript', duration: '6 weeks', level: 'Advanced', order: 1 }
+      ],
+      duration: '3 months',
       level: 'Beginner to Advanced',
       enrolledStudents: 156,
       completionRate: 78,
-      status: 'active'
-    },
-    {
-      id: '2',
-      name: 'Backend Development Path',
-      description: 'Master backend development with Node.js and databases',
-      courses: ['Node.js Basics', 'Express.js', 'Database Design', 'API Development'],
-      duration: '4 months',
-      level: 'Intermediate',
-      enrolledStudents: 89,
-      completionRate: 85,
-      status: 'active'
+      status: 'active',
+      totalCourses: 2
     }
   ]);
 
@@ -113,7 +108,7 @@ const Paths = () => {
                     <SafeIcon icon={FiBook} className="w-4 h-4 mr-1" />
                     Courses
                   </div>
-                  <span className="font-medium">{path.courses.length}</span>
+                  <span className="font-medium">{path.totalCourses}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center text-gray-500">
@@ -130,7 +125,7 @@ const Paths = () => {
                   <span className="font-medium">{path.completionRate}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-primary-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${path.completionRate}%` }}
                   ></div>
@@ -141,15 +136,16 @@ const Paths = () => {
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Course Sequence</h4>
                 <div className="space-y-2">
                   {path.courses.slice(0, 3).map((course, idx) => (
-                    <div key={idx} className="flex items-center text-sm text-gray-600">
+                    <div key={course.id} className="flex items-center text-sm text-gray-600">
                       <span className="w-5 h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-medium mr-2">
                         {idx + 1}
                       </span>
-                      {course}
+                      <span className="flex-1">{course.title}</span>
+                      <span className="text-xs text-gray-400">{course.duration}</span>
                     </div>
                   ))}
                   {path.courses.length > 3 && (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 ml-7">
                       +{path.courses.length - 3} more courses
                     </div>
                   )}
