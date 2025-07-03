@@ -23,16 +23,31 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    // Simulate login - in real app, this would call an API
+  const login = async (email, password, demoUser = null) => {
+    // Demo user login
+    if (demoUser) {
+      const mockUser = {
+        id: demoUser.email,
+        email: demoUser.email,
+        name: demoUser.name,
+        role: demoUser.role,
+        avatar: `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000000)}?w=150&h=150&fit=crop&crop=face`,
+        permissions: demoUser.permissions || []
+      };
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      return mockUser;
+    }
+
+    // Regular login - create a mock user for demonstration
     const mockUser = {
       id: '1',
       email,
       name: 'Admin User',
       role: 'admin',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      permissions: ['All Permissions']
     };
-    
     setUser(mockUser);
     localStorage.setItem('user', JSON.stringify(mockUser));
     return mockUser;

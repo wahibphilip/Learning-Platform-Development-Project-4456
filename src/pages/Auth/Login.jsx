@@ -19,11 +19,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
       await login(email, password);
       toast.success('Successfully logged in!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       toast.error('Login failed. Please try again.');
     } finally {
